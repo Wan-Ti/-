@@ -1,4 +1,4 @@
-# -## 事件触发的三个阶段
+## 事件触发的三个阶段
 
 捕获阶段：window向事件触发处进行传播，寻找监听函数的过程；</br>
 冒泡阶段：事件触发处向window传播，寻找监听函数的过程。</br>
@@ -69,12 +69,74 @@
  **属性**
  
  * event.bubbles(只读):
+   
+   返回一个布尔值，表明当前事件是否会向DOM树上层元素冒泡</br>
  
- 返回一个布尔值，表明当前事件是否会向DOM树上层元素冒泡
  * event.cancelable(只读):
- * event.currentTarget
- * event.target
+  
+   事件的cancelable属性表明该事件是否可以被取消默认行为，如果该事件可以用preventDefault()可以阻止与事件关联的默认行为，则返回true,否则为false。如果该事件的cancelable属性为false,则该事件的监听器无法阻止默认行为，调用prenentDefault()将产生错误。
+ * event.currentTarget：
+
+   当事件遍历DOM时，标识事件的当前目标。它总是引用事件处理程序附加到的元素，而不是event.target,event.target标识事件发生的元素
+ 
+ 当事件遍历DOM时，表示事件的当前目标。
+ 
+ ```
+ function hide(e){
+ e.currentTarget.style.visibility = "hidden";
+ console.log(e.currentTarget);
+ //该函数用于事件处理器时：this === e.currentTarget
+ }
+ 
+ var ps = document.getElementsByTagName('p');
+ 
+ for(var i = 0;i < ps.length;i++){
+ //console:打印被点击的p元素
+ ps[i].addEventListener('click',hide,false);
+ }
+ //console:打印body元素
+ document.body,addEventListener('click',hide,false);
+ 
+ ```
+ 上述代码运行后，点击网页中的p节点，由于注册的事件监听器都是冒泡属性，所以会依次打击点击的p节点和body节点。
+ 
+ * event.target：
+  
+    一个触发事件的对象的引用。
  * event.defaultPrevented(只读)：
+   
+   返回一个布尔值，表明当前事件是否调用的event.preventDefault()方法
  * event.type(只读)：
  
+   只读属性Event.type会返回一个字符串，表示该事件对象的事件类型。
+   
+ **方法**
  
+ * preventDefault():
+ 
+   该方法可以禁止一切默认的行为，例如点击a标签时，会打开一个新页面，如果为a标签监听事件click同时调用该方法，则不会打开新页面。
+ 
+ * event.stopPropagation() 
+ 
+   阻止捕获和冒泡阶段中当前时间的进一步传播。
+   
+## 事件委托
+
+事件监听后，检测顺序就会从被绑定的DOM下滑到触发的元素，再冒泡会绑定的DOM上。如果你监听了一个DOM节点，那就等于你监听了其所有的后代节点。
+
+使用事件委托能够避免对特定的每个节点添加事件监听器；事件监听器是被添加到它们的父元素上。事件监听器会分析从子元素冒泡上来的事件，找到是哪个子元素的事件，利用事件冒泡的特性，将里层的事件委托给外层时间。根据event对象的属性进行事件委托，改善性能。
+```
+var ul  = document.creatElement('ul');
+document.body.appendChild(ul);
+
+var  li1 = document.createElement('li');
+var li2 = document.createElement('li');
+ul.appendChild(li1);
+ul.appendChild(li2);
+
+function hide(e){
+e.target.style.visibility = 'hidden';
+}
+
+ul.addEventListener('click',hide,false);
+```
